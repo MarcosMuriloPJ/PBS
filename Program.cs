@@ -2,7 +2,7 @@
 {
     public static void Main()
     {
-        #region Exemplos de entrada
+        #region Input examples
         string[,] input = { { "A","B" }, { "A","C" }, { "B","G" }, { "C","H" }, { "E","F" }, { "B","D" }, { "C","E" } };
         // string[,] input = { { "B","D" }, { "D","E" }, { "A","B" }, { "C","F" }, { "E","G" }, { "A","C" } };
         // string[,] input = {  { "A","C" },  { "B","C" },  { "B","D" },  { "D","E" } };
@@ -10,6 +10,7 @@
 
         try
         {
+            Console.WriteLine("Inicializando...");
             var root = BuildTree(input);
 
             Console.WriteLine("Resultado:");
@@ -55,6 +56,7 @@
         if (rootNodes.Count > 1)
             throw new InvalidOperationException("Raízes múltiplas");
 
+        Console.WriteLine("Construção de árvore finalizada...");
         return rootNodes.FirstOrDefault();
     }
 
