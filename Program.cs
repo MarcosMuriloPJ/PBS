@@ -30,7 +30,7 @@
     public static Node BuildTree(string[,] input)
     {
         var nodes = new Dictionary<string, Node>();
-        var recursionStack = new HashSet<Node>();
+        var stack = new HashSet<Node>();
 
         for (int i = 0; i < input.GetLength(0); i++)
         {
@@ -64,7 +64,7 @@
 
         foreach (var node in nodes.Values)
         {
-            if (HasCycle(node, recursionStack))
+            if (HasCycle(node, stack))
                 throw new InvalidOperationException("Ciclo presente");
         }
 
@@ -72,20 +72,20 @@
         return rootNodes.FirstOrDefault();
     }
 
-    private static bool HasCycle(Node node, HashSet<Node> recursionStack)
+    private static bool HasCycle(Node node, HashSet<Node> stack)
     {
-        if (recursionStack.Contains(node))
+        if (stack.Contains(node))
             return true;
 
-        recursionStack.Add(node);
+        stack.Add(node);
 
         foreach (var child in node.Children)
         {
-            if (HasCycle(child, recursionStack))
+            if (HasCycle(child, stack))
                 return true;
         }
 
-        recursionStack.Remove(node);
+        stack.Remove(node);
         return false;
     }
 
