@@ -3,20 +3,25 @@
     public static void Main()
     {
         #region Input examples
-        string[,] input = { { "A","B" }, { "A","C" }, { "B","G" }, { "C","H" }, { "E","F" }, { "B","D" }, { "C","E" } };
-        // string[,] input = { { "B","D" }, { "D","E" }, { "A","B" }, { "C","F" }, { "E","G" }, { "A","C" } };
-        // string[,] input = {  { "A","C" },  { "B","C" },  { "B","D" },  { "D","E" } };
+        string[,] input = { { "B","G" }, { "A","B" }, { "A","C" }, { "C","H" }, { "E","F" }, { "B","D" }, { "C","E" } }; // Cenário perfeito
+        // string[,] input = { { "A","B" }, { "C","D" }, { "A","C" }, { "A","E" } }; // Exceção E1 (Mais de 2 filhos)
+        // string[,] input = { { "A","B" }, { "B","D" }, { "A","C" }, { "D","A" } }; // Exceção E2 (Ciclo presente)
+        // string[,] input = { { "B","D" }, { "D","E" }, { "A","B" }, { "C","F" } }; // Exceção E3 (Raízes múltiplas)
+        // string[,] input = { }; // Exceção E4 'Qualquer outro erro'
         #endregion
 
         try
         {
             Console.WriteLine("Inicializando...");
-            var root = BuildTree(input);
+            var tree = BuildTree(input);
 
-            Console.WriteLine("Resultado:");
-            PrintTree(root);
+            PrintTree(tree);
         }
         catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"Erro: {ex.Message}");
+        }
+        catch (Exception ex)
         {
             Console.WriteLine($"Erro: {ex.Message}");
         }
@@ -25,6 +30,8 @@
     public static Node BuildTree(string[,] input)
     {
         var nodes = new Dictionary<string, Node>();
+        var visitedNodes = new HashSet<Node>();
+        var recursionStack = new HashSet<Node>();
 
         for (int i = 0; i < input.GetLength(0); i++)
         {
@@ -56,15 +63,42 @@
         if (rootNodes.Count > 1)
             throw new InvalidOperationException("Raízes múltiplas");
 
+        foreach (var node in nodes.Values)
+        {
+            if (HasCycle(node, visitedNodes, recursionStack))
+                throw new InvalidOperationException("Ciclo presente");
+        }
+
         Console.WriteLine("Construção de árvore finalizada...");
         return rootNodes.FirstOrDefault();
     }
 
-    public static void PrintTree(Node node, string indent = "")
+    private static bool HasCycle(Node node, HashSet<Node> visited, HashSet<Node> recursionStack)
     {
-        Console.WriteLine($"{indent}└─ {node.Root}");
+        if (recursionStack.Contains(node))
+            return true;
+
+        if (visited.Contains(node))
+            return false;
+
+        visited.Add(node);
+        recursionStack.Add(node);
 
         foreach (var child in node.Children)
+        {
+            if (HasCycle(child, visited, recursionStack))
+                return true;
+        }
+
+        recursionStack.Remove(node);
+        return false;
+    }
+
+    public static void PrintTree(Node tree, string indent = "")
+    {
+        Console.WriteLine($"{indent}└─ {tree.Root}");
+
+        foreach (var child in tree.Children)
         {
             PrintTree(child, indent + "   ");
         }
